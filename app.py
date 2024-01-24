@@ -14,26 +14,12 @@ from langchain.callbacks import get_openai_callback # helps us to know how much 
 from dotenv import load_dotenv
 
 
-#side bar contents
-with st.sidebar:
-    st.title('🤗💬 LLM Chat App')
-    st.markdown("""
-    ## About
-    This app is an LLM-powered chatbot built using:
-    - [Streamlit](https://streamlit.io/)
-    - [Langchain](https://python.langchian.com/)
-    - [OpenAI](https://platform.openai.com/docs/models) LLM model
-    - [Github](https://github.com/praj2408/Langchain-PDF-App-GUI) Repository
-                
-    """)
-    add_vertical_space(5)
-    st.write("Made by Tejaswini N R.")
-    
     
 load_dotenv()
     
 def main():
-    st.header("Chat with PDF 💬")
+    st.header("Made by Parag Gupta")
+    st.write("Chat with PDF")
     
     # upload a PDF file
     pdf = st.file_uploader("Upload your PDF", type="pdf")
