@@ -1,4 +1,4 @@
-#!/Users/paraggupta/Desktop/backup/hackerkernel/Ai/python/Langchain-PDF-App-GUI/my-env/bin/python
+#!/Users/paraggupta/Desktop/backup/hackerkernel/Ai/python/Langchain-PDF-App-GUI/my-env/bin/python3.11
 # -*- coding: utf-8 -*-
 import re
 import sys
