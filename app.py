@@ -1,14 +1,11 @@
 import streamlit as st
 from PyPDF2 import PdfReader
-
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_openai import OpenAIEmbeddings
-
-from langchain_community.vectorstores import FAISS
-
-from langchain_community.llms import OpenAI
+from langchain.embeddings.openai import OpenAIEmbeddings
+from langchain.text_splitter import CharacterTextSplitter
+from langchain.vectorstores import FAISS
 from langchain.chains.question_answering import load_qa_chain
-from langchain_community.callbacks import get_openai_callback
+from langchain.llms import OpenAI
+
 
 from dotenv import load_dotenv
 
@@ -23,56 +20,28 @@ def main():
     # upload a PDF file
     pdf = st.file_uploader("Upload your PDF", type="pdf")
     
-    #st.write(pdf)
-    
     if pdf is not None:
         pdf_reader = PdfReader(pdf)
-        
         text = ""
         for page in pdf_reader.pages:
             text += page.extract_text()            
             
-        text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=800, # it will divide the text into 800 chunk size each (800 tokens)
-            chunk_overlap=200,
-            length_function=len
+        text_splitter = CharacterTextSplitter(
+            separator = "\n",
+            chunk_size = 800,
+            chunk_overlap  = 200,
+            length_function = len,
         )
-        chunks = text_splitter.split_text(text=text)
+        user_input = st.text_input("You can search about finance from pdf")
+        if(user_input):
+            texts = text_splitter.split_text(text)
+            chain = load_qa_chain(OpenAI(model_name='gpt-3.5-turbo'), chain_type="stuff")
+            embeddings = OpenAIEmbeddings()
+            document_search = FAISS.from_texts(texts, embeddings)
+            docs = document_search.similarity_search(user_input)
+            output =chain.run(input_documents=docs, question=user_input)
+            st.write(output)
         
-        #st.write(chunks)
-        
-        
-        ## embeddings
-        
-        
-        
-        
-        embeddings = OpenAIEmbeddings()
-        VectorStore = FAISS.from_texts(chunks, embedding=embeddings)
-            
-            # st.write("Embeddings Computation Completed ")
-            
-        
-        # Accept user questions/query
-        query = st.text_input("Ask questions about your PDF file")
-        #st.write(query)
-        
-        if query:
-            
-            docs = VectorStore.similarity_search(query=query, k=3) # k return the most relevent information
-            
-            llm = OpenAI(model_name='gpt-3.5-turbo')
-            chain = load_qa_chain(llm=llm, chain_type='stuff')
-            with get_openai_callback() as cb:
-                
-                response = chain.run(input_documents=docs, question=query)
-            st.write(response)
-            
-            
-            
-
-    
-    
     
 if __name__ == "__main__":
     main()
