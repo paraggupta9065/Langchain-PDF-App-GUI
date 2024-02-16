@@ -21,7 +21,7 @@ setup(
     name='LangChain PDF App',
     version='0.0.1',
     author='Parag Gupta',
-    author_email='nrtejaswini25@gmail.com',
+    author_email='paraggupta9063@gmail.com',
     packages=find_packages(),
     install_requires=get_requirements('requirements.txt')
 

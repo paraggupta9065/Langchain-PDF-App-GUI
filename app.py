@@ -5,9 +5,12 @@ from langchain.text_splitter import CharacterTextSplitter
 from langchain.vectorstores import FAISS
 from langchain.chains.question_answering import load_qa_chain
 from langchain.llms import OpenAI
-
-
 from dotenv import load_dotenv
+
+#PDF Extract api
+
+
+
 
 
     
@@ -24,24 +27,69 @@ def main():
         pdf_reader = PdfReader(pdf)
         text = ""
         for page in pdf_reader.pages:
-            text += page.extract_text()            
+            text += page.extract_text()  
             
         text_splitter = CharacterTextSplitter(
             separator = "\n",
-            chunk_size = 800,
-            chunk_overlap  = 200,
+            chunk_size = 2000,
+            chunk_overlap  = 0,
             length_function = len,
         )
-        user_input = st.text_input("You can search about finance from pdf")
-        if(user_input):
-            texts = text_splitter.split_text(text)
-            chain = load_qa_chain(OpenAI(model_name='gpt-3.5-turbo'), chain_type="stuff")
-            embeddings = OpenAIEmbeddings()
-            document_search = FAISS.from_texts(texts, embeddings)
-            docs = document_search.similarity_search(user_input)
-            output =chain.run(input_documents=docs, question=user_input)
-            st.write(output)
+        if True:
+            with st.spinner("Analyzing Your Document"): 
+                output=ask_que(text_splitter,text)
+                st.write(output)
+
         
+        
+def ask_que(text_splitter,text):
+    
+    
+    texts = text_splitter.split_text(text)
+    
+    context =f"""
+    ## Financial Document Processing
+
+        This document is a financial document in PDF format, likely containing bank statements, transaction listings, or similar records. Your task is to extract specific data points related to transactions from the text. Please pay close attention to accuracy, as this is financial information.
+
+        **Document:**
+
+        {text}
+
+        **Target Data:**
+
+        1. **Transactions above ₹5,000:**
+            - Amount (numerical value)
+            - Date (formatted as YYYY-MM-DD)
+            - Merchant name (text)
+            - Transaction type (e.g., debit, credit, transfer)
+            - Category (optional, if provided in the document)
+        2. **EMI-related transactions:**
+            - Amount (numerical value)
+            - Date (formatted as YYYY-MM-DD)
+            - Merchant name (text)
+            - EMI number (if available)
+            - Due date (optional, if available)
+        3. **Credit card transactions:**
+            - Amount (numerical value)
+            - Date (formatted as YYYY-MM-DD)
+            - Merchant name (text)
+            - Card number (masked, last 4 digits)
+            - Category (optional, if provided in the document)
+        4. **Largest transaction:**
+            - Amount (numerical value)
+            - Date (formatted as YYYY-MM-DD)
+            - Merchant name (text)
+            - Transaction type (e.g., debit, credit, transfer)
+            - Category (optional, if provided in the document)
+
+        **Output:**
+        """
+    chat = OpenAI(model_name='gpt-3.5-turbo-0125',temperature=0.0)
+    
+    
+    return chat.invoke(context)
+    
     
 if __name__ == "__main__":
     main()
