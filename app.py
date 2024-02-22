@@ -48,16 +48,19 @@ def ask_que(text_splitter,text):
     texts = text_splitter.split_text(text)
     
     context =f"""
-    ## Financial Document Processing
-
-        This document is a financial document in PDF format, likely containing bank statements, transaction listings, or similar records. Your task is to extract specific data points related to transactions from the text. Please pay close attention to accuracy, as this is financial information.
-
+            ## Financial Document Processing
+            This document is a financial document in PDF format, likely containing bank statements, transaction listings, or similar records. Your task is to extract specific data points related to transactions from the text. Please pay close attention to accuracy, as this is financial information.
+            **Validation:**
+                1. First Check if the document contains transaction data (e.g., keywords like "transaction", "amount", etc.).
+                2. If no transaction data is found, return an error message indicating "Document does not contain transaction information."
+                3. If transaction data is there do not show validation
+                
         **Document:**
 
         {text}
 
         **Target Data:**
-
+        
         1. **Transactions above ₹5,000:**
             - Amount (numerical value)
             - Date (formatted as YYYY-MM-DD)
@@ -82,8 +85,6 @@ def ask_que(text_splitter,text):
             - Merchant name (text)
             - Transaction type (e.g., debit, credit, transfer)
             - Category (optional, if provided in the document)
-
-        **Output:**
         """
     chat = OpenAI(model_name='gpt-3.5-turbo-0125',temperature=0.0)
     
